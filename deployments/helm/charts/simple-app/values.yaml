@@ -1,0 +1,10 @@
+image:
+env:
+  - name:
+    value:
+port:
+cpu: 10m
+memory: 25Mi
+ingress:
+  domain:
+  subdomain:

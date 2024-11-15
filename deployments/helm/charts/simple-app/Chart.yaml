@@ -1,0 +1,5 @@
+apiVersion: v2
+name: simple-app
+description: Creates a simple application.
+type: application
+version: 0.0.1

@@ -1,0 +1,38 @@
+version: "3"
+
+env:
+  PORT: 8080
+
+tasks:
+  build-*:
+    vars:
+      APP_NAME: "{{index .MATCH 0}}"
+    cmds:
+      - |
+        docker build -t {{.REGISTRY}}/{{.APP_NAME}}:{{.VERSION}} \
+          --build-arg app_name={{.APP_NAME}} \
+          --build-arg artifacts={{.ARTIFACTS}} \
+          -f ./build/package/Dockerfile .
+    requires:
+      vars: [REGISTRY, VERSION]
+
+  run-*:
+    vars:
+      APP_NAME: "{{index .MATCH 0}}"
+    cmds:
+      - |
+        docker run -it --rm \
+          --name {{.APP_NAME}} \
+        --env=ADDRESS=:{{.PORT}} \
+          -p {{.PORT}}:{{.PORT}} \
+          {{.REGISTRY}}/{{.APP_NAME}}:{{.VERSION}}
+    requires:
+      vars: [REGISTRY, VERSION]
+
+  push-*:
+    vars:
+      APP_NAME: "{{index .MATCH 0}}"
+    cmds:
+      - docker push {{.REGISTRY}}/{{.APP_NAME}}:{{.VERSION}}
+    requires:
+      vars: [REGISTRY, VERSION]

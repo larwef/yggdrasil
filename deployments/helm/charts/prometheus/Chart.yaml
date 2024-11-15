@@ -1,0 +1,5 @@
+apiVersion: v2
+name: prometheus
+description: Deploys prometheus with accompanying infrastructure.
+type: application
+version: 0.0.1

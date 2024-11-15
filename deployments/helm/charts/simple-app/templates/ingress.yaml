@@ -1,0 +1,60 @@
+{{if .Values.ingress}}
+{{ $name := .Release.Name }}
+{{ $domain := .Values.ingress.domain | required ".Values.ingress.domain is required." }}
+{{ $subdomain := .Values.ingress.subdomain | required ".Values.subdomain is required." }}
+{{ $service_port := .Values.port | required ".Values.service.port is required." }}
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ $name }}-security-middleware
+spec:
+  headers:
+    frameDeny: true
+    sslRedirect: true
+    browserXssFilter: true
+    contentTypeNosniff: true
+    stsIncludeSubdomains: true
+    stsPreload: true
+    stsSeconds: 31536000
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ $name }}-ingress
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: "Host(`{{ $subdomain }}.{{ $domain }}`)"
+      services:
+        - name: {{ $name }}
+          port: {{ $service_port }}
+      middlewares:
+      - name: {{ $name }}-security-middleware
+  tls:
+    certResolver: letsencrypt
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ $name }}-ingress-policy
+spec:
+  podSelector:
+    matchLabels:
+      app: {{ $name }}
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: kube-system
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/name: traefik
+      ports:
+        - protocol: TCP
+          port: {{ $service_port }}
+{{end}}

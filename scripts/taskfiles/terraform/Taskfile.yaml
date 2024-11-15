@@ -1,0 +1,21 @@
+version: "3"
+
+env:
+  TF_PLAN_FILE: "plan.tfplan"
+
+tasks:
+  init:
+    cmds:
+      - terraform init
+
+  plan:
+    cmds:
+      - terraform plan -out={{.TF_PLAN_FILE}}
+
+  apply:
+    cmds:
+      - terraform apply {{.TF_PLAN_FILE}}
+
+  destroy:
+    cmds:
+      - terraform destroy

@@ -1,0 +1,12 @@
+resourceQuota:
+  hard:
+    requests.cpu: "250m"
+    requests.memory: "500Mi"
+    limits.memory: "500Mi"
+    requests.storage: "15Gi"
+
+limitRange:
+  limits:
+    - type: PersistentVolumeClaim
+      max:
+        storage: "5Gi"

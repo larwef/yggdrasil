@@ -1,0 +1,69 @@
+# --------------------------- Namespace: kube-system ---------------------------
+releases:
+  - name: traefik-custom
+    namespace: kube-system
+    chart: ./charts/traefik-custom
+    values:
+      - email: {{ requiredEnv "LETSENCRYPT_ACME_EMAIL"}}
+
+  - name: node-exporter
+    namespace: kube-system
+    chart: ./charts/node-exporter
+    values:
+      - node_exporter_tag: {{ requiredEnv "NODE_EXPORTER_VERSION"}}
+
+  - name: kube-state-metrics
+    namespace: kube-system
+    chart: ./charts/kube-state-metrics
+    values:
+      - kube_state_metrics_tag: {{ requiredEnv "KUBE_STATE_METRICS_VERSION"}}
+
+# ----------------------------- Namespace: default -----------------------------
+  - name: defaut-namespace
+    namespace: default
+    chart: ./charts/namespace
+    values:
+      - ./values/default-namespace.yaml
+
+# --------------------------- Namespace: monitoring ---------------------------
+  - name: monitoring-namespace
+    namespace: monitoring
+    chart: ./charts/namespace
+    values:
+      - ./values/monitoring-namespace.yaml
+
+  - name: prometheus
+    namespace: monitoring
+    chart: ./charts/prometheus
+    values:
+      - prometheus_tag: {{ requiredEnv "PROMETHEUS_VERSION"}}
+
+  - name: grafana
+    namespace: monitoring
+    chart: ./charts/grafana
+    values:
+      - grafana_tag: {{ requiredEnv "GRAFANA_VERSION"}}
+      - domain: {{ requiredEnv "DOMAIN"}}
+
+# -------------------------- Namespace: applications --------------------------
+  - name: applications-namespace
+    namespace: applications
+    chart: ./charts/namespace
+    values:
+      - ./values/applications-namespace.yaml
+
+# -------------------------- Namespace: experiments ---------------------------
+  - name: experiments-namespace
+    namespace: experiments
+    chart: ./charts/namespace
+    values:
+      - ./values/experiments-namespace.yaml
+
+  - name: experimental
+    namespace: experiments
+    chart: ./charts/simple-app
+    values:
+    - ./values/experimental.yaml
+    - image: "{{ requiredEnv "REGISTRY"}}/experimental:{{ requiredEnv "EXPERIMENTAL_VERSION"}}"
+    - ingress:
+        domain: {{ requiredEnv "DOMAIN"}}

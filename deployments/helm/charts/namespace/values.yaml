@@ -1,0 +1,12 @@
+resourceQuota:
+  hard:
+    requests.cpu: "0"
+    requests.memory: "0"
+    limits.memory: "0"
+    requests.storage: "0"
+
+limitRange:
+  limits:
+    - type: PersistentVolumeClaim
+      max:
+        storage: "0"

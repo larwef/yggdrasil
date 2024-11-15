@@ -1,0 +1,48 @@
+version: "3"
+
+env:
+  ARTIFACTS: "./artifacts"
+
+tasks:
+  run-*:
+    vars:
+      APP_NAME: "{{index .MATCH 0}}"
+    cmds:
+      - go run cmd/{{.APP_NAME}}/main.go
+
+  lint:
+    cmds:
+      - golangci-lint --timeout=120s run ./...
+
+  test:
+    cmds:
+      - go test -v ./...
+
+  build-*:
+    vars:
+      APP_NAME: "{{index .MATCH 0}}"
+    cmds:
+      - |
+        go build \
+          -ldflags " \
+            -X main.appName={{.APP_NAME}} \
+            -X main.version={{.VERSION}} \
+          " -o {{.ARTIFACTS}}/{{.APP_NAME}}.bin cmd/{{.APP_NAME}}/main.go
+    env:
+      GOOS: "linux"
+      GOARCH: "arm64"
+    requires:
+      vars: [VERSION]
+
+  generate:
+    cmds:
+      - go generate ./...
+
+  update:
+    cmds:
+      - go get -u ./...
+      - go mod tidy
+
+  license-check:
+    cmds:
+      - go-licenses check ./... --disallowed_types=forbidden -v 1

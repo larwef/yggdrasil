@@ -1,0 +1,55 @@
+{{ $name := .Release.Name }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{$name}}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{$name}}
+  template:
+    metadata:
+      labels:
+        app: {{$name}}
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: {{$name}}
+          image: {{.Values.image | required ".Values.image is required."}}
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          livenessProbe:
+            tcpSocket:
+              port: traffic
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 3
+          {{- if .Values.env}}
+          env:
+          {{- range .Values.env}}
+            - name: {{.name}}
+              value: {{.value | quote}}
+          {{- end}}
+          {{- end}}
+          {{- if .Values.port}}
+          ports:
+          - containerPort: {{.Values.port}}
+            name: traffic
+            protocol: TCP
+          {{- end}}
+          resources:
+            requests:
+              memory: {{.Values.memory}}
+              cpu: {{.Values.cpu}}
+            limits:
+              memory: {{.Values.memory}}

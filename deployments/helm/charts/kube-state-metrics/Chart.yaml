@@ -1,0 +1,5 @@
+apiVersion: v2
+name: kube-state-metrics
+description: Deploys kube-state-metrics with accompanying infrastructure.
+type: application
+version: 0.0.1

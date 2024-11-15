@@ -1,0 +1,16 @@
+{{if .Values.port}}
+{{ $name := .Release.Name }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{$name}}
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{.Values.port}}
+      protocol: TCP
+      targetPort: traffic
+  selector:
+    app: {{$name}}
+{{end}}

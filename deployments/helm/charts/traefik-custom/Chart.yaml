@@ -1,0 +1,5 @@
+apiVersion: v2
+name: traefik-custom
+description: Overrides for traefik setup in k3s.
+type: application
+version: 0.0.1

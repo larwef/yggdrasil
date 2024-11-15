@@ -1,0 +1,9 @@
+.DS_Store
+secrets.env
+**/artifacts/
+.terraform
+.terraform.lock.hcl
+plan.tfplan
+backend.tf
+*.tgz
+key.json

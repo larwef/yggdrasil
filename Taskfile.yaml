@@ -1,0 +1,48 @@
+version: "3"
+
+dotenv:
+  - secrets.env
+  - config.env
+  - ./cmd/experimental/config.env
+
+env:
+  VERSION: v0.0.1
+
+includes:
+  helmfile:
+    taskfile: ./scripts//taskfiles/helmfile/
+    dir: ./deployments/helm/
+    optional: true
+
+  terraform:
+    taskfile: ./scripts/taskfiles/terraform/
+    dir: ./deployments/terraform/
+    optional: true
+
+  go:
+    taskfile: ./scripts/taskfiles/go/
+
+  docker:
+    taskfile: ./scripts/taskfiles/docker/
+    optional: true
+
+tasks:
+  default:
+    desc: Default task
+    cmds:
+      - task --list-all
+
+  create-docker-read-service-account:
+    desc: Create service account for k3s to pull docker images with.
+    cmds:
+      - |
+        gcloud iam service-accounts create k3s-docker-read \
+          --description="Service account used by k3s to pull docker images" \
+          --display-name="k3s Docker Read"
+      - |
+        gcloud projects add-iam-policy-binding {{.GOOGLE_PROJECT}} \
+          --member="serviceAccount:k3s-docker-read@{{.GOOGLE_PROJECT}}.iam.gserviceaccount.com" \
+          --role="roles/artifactregistry.reader"
+      - |
+        gcloud iam service-accounts keys create key.json \
+          --iam-account=k3s-docker-read@{{.GOOGLE_PROJECT}}.iam.gserviceaccount.com

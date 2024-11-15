@@ -1,0 +1,12 @@
+image:
+port: 8080
+env:
+  - name: LOG_LEVEL
+    value: info
+  - name: LOG_SOURCE
+    value: "false"
+  - name: LOG_JSON
+    value: "true"
+ingress:
+  domain:
+  subdomain: experimental
